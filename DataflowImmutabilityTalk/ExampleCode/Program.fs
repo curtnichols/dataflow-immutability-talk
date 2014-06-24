@@ -9,8 +9,6 @@ open System.Threading.Tasks.Dataflow
 
 // Utilties
 
-let identity = fun x -> x
-
 let log = // Don't print partial messages
     let guard = obj()
     fun s -> lock guard (fun () -> printfn "%s" s)

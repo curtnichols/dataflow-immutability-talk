@@ -62,8 +62,8 @@ let constructGraph = makeBuffer
                         << makeDataAssembler
                         << makeImageProcessor
                         << makeSecretSauce
-                        << makeTee [ makeModeler << makeSecretSauce << terminate
-                                     makeRecorder << terminate]
+                        << makeTee [ makeModeler << makeSecretSauce << leaf
+                                     makeRecorder << leaf]
 
 let quitWaitClean (root: Scaffold<_>) =
     let completeGraph (root: IDataflowBlock) = root.Complete ()

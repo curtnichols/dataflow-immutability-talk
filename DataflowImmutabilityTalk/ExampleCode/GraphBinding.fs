@@ -9,12 +9,13 @@ open System.Threading.Tasks.Dataflow
 
 // Track the leaf nodes so we can know when the graph has drained.
 type LeafNodes = Task list
+type Disposables = IDisposable list
 
 // Defines the scaffolding used to link one graph node to the next.
 // The target is the ITargetBlock<'T> that the constructor has built to accept
 // input. The leaf nodes are tracked so we can determine when the processing has
 // finished. The list of disposables is for cleaning up resources when we're done.
-type Scaffold<'Target> = ITargetBlock<'Target> * LeafNodes * (IDisposable list)
+type Scaffold<'Target> = ITargetBlock<'Target> * LeafNodes * Disposables
 
 let bindBuffer (): Scaffold<'T> -> Scaffold<'T> =
     fun rhNode ->
@@ -75,12 +76,12 @@ let bindActionWithState (makeState: unit -> 'State)
         let disposable = linkableOutput.LinkTo (tgt, DataflowLinkOptions(PropagateCompletion = true))
         actionBlock :> ITargetBlock<'T>, leaves, [disposable]
 
-let terminate<'T> () =
+let leaf<'T> () =
     let action = ActionBlock<'T>(fun x -> ())
     action :> ITargetBlock<'T>, [action.Completion], List.empty<IDisposable>
 
 
-let makeTee (partCtors: (unit -> (#ITargetBlock<'T> * LeafNodes * IDisposable list)) list) =
+let makeTee (partCtors: (unit -> (#ITargetBlock<'T> * LeafNodes * Disposables)) list) =
     fun () ->
         let targets, leaves, disposables =
             partCtors |> List.fold
